@@ -21,9 +21,17 @@ All of these screen can call a different API at the end.
 
 # How it works
 
-The IDEA of the repository was a POC (Prove of concept) that i develop for a problem that we had on EBANX.
+The IDEA of the repository was to create a POC (Prove of concept) that I develop to solve a problem that we had at EBANX.
 
 WIP
+
+# Setup
+
+Run the following command to setup all the dependencies
+
+```
+$ flutter pub get 
+```
 
 ## Credits
 

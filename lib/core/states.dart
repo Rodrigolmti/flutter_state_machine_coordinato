@@ -19,6 +19,11 @@ import 'package:equatable/equatable.dart';
 /// [TaskState] It is used to handle async work, for example call a useCase to
 /// update some date, doing with the task we take the responsability out of the coordinator
 /// [CoordinatorState] It is used to open a new coordinator in the flow
+///
+/// The Equatable package is helpfull because, dart does not provide sealed classes like kotlin
+/// so we need to instantiate a class when we are sending a intention for example, so if we compare
+/// the instance that as provided on [addTransition] method with the one that was sended on the screen
+/// it will fail, but with equatable it works. We can implement it overriding the methods but ...
 abstract class MachineState extends Equatable {
   @override
   List<Object?> get props => [];
