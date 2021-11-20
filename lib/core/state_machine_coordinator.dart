@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:coordinator/core/coordinator.dart';
@@ -6,8 +7,8 @@ import 'package:coordinator/core/state_machine.dart';
 import 'package:coordinator/router/route_observer.dart';
 import 'package:flutter/material.dart';
 
-abstract class StateMachineCoordinator<I extends Intention>
-    extends Coordinator<I> {
+abstract class StateMachineCoordinator extends Coordinator
+    implements CoordinatorExecutor, CoordinatorLifecycle {
   final ListQueue<MachineState> stateHistory = ListQueue<MachineState>();
   final CoordinatorRouteObserver routeObserver;
 
@@ -28,6 +29,8 @@ abstract class StateMachineCoordinator<I extends Intention>
     required BuildContext context,
     VoidCallback? coordinationDidFinish,
   }) {
+    onStart();
+
     stateHistory.clear();
 
     routeObserver.subscribe(this);
@@ -36,22 +39,99 @@ abstract class StateMachineCoordinator<I extends Intention>
 
     final start = stateMachine.getStart;
     stateHistory.add(start);
-    applyState(context, start, null, start);
+
+    _applyState(
+      context: context,
+      state: start,
+    );
 
     print('$runtimeType history: $stateHistory');
   }
 
   @override
-  void send(BuildContext context, I _intention) {
+  void send({
+    required BuildContext context,
+    required Intention intention,
+    VoidCallback? onJobCompleted,
+  }) {
     try {
-      final nextState = stateMachine.getNextState(currentState, _intention);
+      final nextState = stateMachine.getNextState(currentState, intention);
       if (nextState != null) {
         stateHistory.add(nextState);
-        applyState(context, currentState!, _intention, nextState);
+        _applyState(
+          context: context,
+          intention: intention,
+          state: nextState,
+          onJobCompleted: onJobCompleted,
+        );
 
         print('$runtimeType updated history: $stateHistory');
       }
-    } catch (_) {}
+    } catch (error) {
+      print('$runtimeType error: $error');
+    }
+  }
+
+  @override
+  void onStart() {
+    print('$runtimeType lifecycle started');
+  }
+
+  @override
+  void onStop() {
+    print('$runtimeType lifecycle stopped');
+    routeObserver.unsubscribe(this);
+  }
+
+  @override
+  void onResume() {
+    print('$runtimeType lifecycle resumed, history: $stateHistory');
+    routeObserver.subscribe(this);
+    popState();
+  }
+
+  Future<void> _applyState({
+    required BuildContext context,
+    required MachineState state,
+    VoidCallback? onJobCompleted,
+    Intention? intention,
+  }) async {
+    if (state is ViewState) {
+      navigateToScreen(context, intention, state);
+      return;
+    }
+
+    if (state is TaskState) {
+      await executeTask(
+        context: context,
+        intention: intention,
+        state: state,
+      );
+
+      print('$runtimeType finishing up task callback');
+
+      /// Notify the view that the job is done
+      onJobCompleted?.call();
+
+      popState();
+
+      return;
+    }
+
+    if (state is CoordinatorState) {
+      /// Put the current coordinator in a stop mode, so it can't receive updates
+      onStop();
+
+      startCoordinator(
+        context: context,
+        intention: intention,
+        coordinationDidFinish: () => onResume(),
+        state: state,
+      );
+      return;
+    }
+
+    throw Exception('state $state implementation not supported');
   }
 
   void popState() {
@@ -59,6 +139,7 @@ abstract class StateMachineCoordinator<I extends Intention>
 
     if (stateHistory.isEmpty) {
       print('$runtimeType empty history');
+      _finishCoordinatorLifecycle();
       return;
     }
 
@@ -67,73 +148,16 @@ abstract class StateMachineCoordinator<I extends Intention>
 
       print('$runtimeType popping ${state.runtimeType}');
     } while (stateHistory.length > 1 && state is ViewState);
-    // } while (currentState is! ViewState && state is! ViewState);
 
     if (stateHistory.isEmpty) {
-      coordinationDidFinish?.call();
-      _onStop();
+      _finishCoordinatorLifecycle();
     }
 
     print('$runtimeType popped history: $stateHistory');
   }
 
-  void _onStop() {
-    print('$runtimeType lifecycle stopped');
-    routeObserver.unsubscribe(this);
+  void _finishCoordinatorLifecycle() {
+    coordinationDidFinish?.call();
+    onStop();
   }
-
-  void _onResume() {
-    print('$runtimeType lifecycle resumed, history: $stateHistory');
-    routeObserver.subscribe(this);
-    popState();
-  }
-
-  void applyState(
-    BuildContext context,
-    MachineState current,
-    I? intention,
-    MachineState next,
-  ) {
-    if (next is ViewState) {
-      navigate(context, intention, next);
-      return;
-    }
-
-    if (next is TaskState) {
-      executeTask(intention, next);
-      return;
-    }
-
-    if (next is CoordinatorState) {
-      _onStop();
-
-      startCoordinator(
-        context: context,
-        intention: intention,
-        coordinationDidFinish: () => _onResume(),
-        state: next,
-      );
-      return;
-    }
-
-    throw Exception('state $next implementation not supported');
-  }
-
-  void navigate(
-    BuildContext context,
-    I? intention,
-    MachineState state,
-  );
-
-  void executeTask(
-    I? intention,
-    MachineState state,
-  );
-
-  void startCoordinator({
-    required BuildContext context,
-    required MachineState state,
-    VoidCallback? coordinationDidFinish,
-    Intention? intention,
-  });
 }

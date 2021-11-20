@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:coordinator/core/coordinator.dart';
 import 'package:coordinator/core/state_machine_coordinator.dart';
 import 'package:coordinator/core/states.dart';
 import 'package:coordinator/router/route_observer.dart';
 import 'package:coordinator/router/router.dart';
 import 'package:coordinator/core/state_machine.dart';
+import 'package:coordinator/service_locator.dart';
 import 'package:flutter/material.dart';
 
 class SignUpNavigator {
@@ -12,12 +15,17 @@ class SignUpNavigator {
   NavigatorState _getNavigator(BuildContext context) => Navigator.of(context);
 
   void navigateToPersonalDataScreen(BuildContext context) {
-    _getNavigator(context)
-        .pushNamed(personalDataScreen, arguments: coordinator);
+    _getNavigator(context).pushNamed(
+      personalDataScreen,
+      arguments: coordinator,
+    );
   }
 
   void navigateToEmailScreen(BuildContext context) {
-    _getNavigator(context).pushNamed(emailScreen);
+    _getNavigator(context).pushNamed(
+      emailScreen,
+      arguments: coordinator,
+    );
   }
 
   void navigateToNameScreen(BuildContext context) {
@@ -50,12 +58,19 @@ class SignUpCoordinator extends StateMachineCoordinator {
   }
 
   @override
-  void executeTask(Intention? intention, state) {
-    // TODO: implement executeTask
+  FutureOr<void> executeTask({
+    required BuildContext context,
+    required MachineState state,
+    Intention? intention,
+  }) async {
+    if (state is ExecuteDummyTask) {
+      final intention = await SL.I.dummyTask.execute();
+      send(context: context, intention: intention);
+    }
   }
 
   @override
-  void navigate(BuildContext context, Intention? intention, state) {
+  void navigateToScreen(BuildContext context, Intention? intention, state) {
     final map = {
       SPersonalDataScreen: _navigator.navigateToPersonalDataScreen,
       SNameScreen: _navigator.navigateToNameScreen,

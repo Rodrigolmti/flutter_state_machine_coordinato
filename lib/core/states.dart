@@ -70,3 +70,13 @@ class StartReSubimit extends Intention {}
 class AskName extends Intention {}
 
 class AskEmail extends Intention {}
+
+class SendDataToAPI extends Intention {}
+
+class DataUpdatedAPI extends Intention {}
+
+class DataErrorAPI extends Intention {}
+
+/// Tasks
+
+class ExecuteDummyTask extends TaskState {}

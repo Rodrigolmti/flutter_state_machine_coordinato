@@ -16,15 +16,12 @@ class CoordinatorRouteObserver extends NavigatorObserver {
 
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    // try {
-
+    /// Copy the current list to avoid concurrency problems, seems to be a simpler solution
+    /// than create some mechanism to await the execution of others sources.
     final list = List<StateMachineCoordinator>.from(coordinators);
     for (final coord in list) {
       coord.popState();
     }
-    // } catch (_) {
-    // Transform this class in concurrency safe, to avoid multiple changes on
-    // }
   }
 
   void subscribe(StateMachineCoordinator coordinator) {

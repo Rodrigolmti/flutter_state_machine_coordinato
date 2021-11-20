@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:coordinator/core/coordinator.dart';
 import 'package:coordinator/core/state_machine_coordinator.dart';
 import 'package:flutter/material.dart';
@@ -18,11 +20,17 @@ class ReSubimitNavigator {
   }
 
   void navigateToEmailScreen(BuildContext context) {
-    _getNavigator(context).pushNamed(emailScreen);
+    _getNavigator(context).pushNamed(
+      emailScreen,
+      arguments: coordinator,
+    );
   }
 
   void navigateToNameScreen(BuildContext context) {
-    _getNavigator(context).pushNamed(nameScreen);
+    _getNavigator(context).pushNamed(
+      nameScreen,
+      arguments: coordinator,
+    );
   }
 }
 
@@ -51,12 +59,16 @@ class ReSubimitCoordinator extends StateMachineCoordinator {
   }
 
   @override
-  void executeTask(Intention? intention, state) {
+  FutureOr<void> executeTask({
+    required BuildContext context,
+    required MachineState state,
+    Intention? intention,
+  }) {
     // TODO: implement executeTask
   }
 
   @override
-  void navigate(BuildContext context, Intention? intention, state) {
+  void navigateToScreen(BuildContext context, Intention? intention, state) {
     final map = {
       SPersonalDataScreen: _navigator.navigateToPersonalDataScreen,
       SNameScreen: _navigator.navigateToNameScreen,

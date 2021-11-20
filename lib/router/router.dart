@@ -1,5 +1,8 @@
 import 'package:coordinator/core/coordinator.dart';
-import 'package:coordinator/main.dart';
+import 'package:coordinator/ui/account_create_screen.dart';
+import 'package:coordinator/ui/email_screen.dart';
+import 'package:coordinator/ui/name_screen.dart';
+import 'package:coordinator/ui/personal_data_screen.dart';
 import 'package:flutter/material.dart';
 
 const personalDataScreen = '/personal-data';
@@ -22,7 +25,9 @@ PageRoute routeGeneration(RouteSettings settings) {
       builder = (_) => const NameScreen();
       break;
     case emailScreen:
-      builder = (_) => const EmailScreen();
+      builder = (_) => EmailScreen(
+            coordinator: settings.arguments as Coordinator,
+          );
       break;
   }
 

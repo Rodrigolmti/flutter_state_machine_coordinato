@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:coordinator/core/state_machine_coordinator.dart';
 import 'package:coordinator/core/states.dart';
 import 'package:coordinator/router/route_observer.dart';
@@ -12,12 +14,16 @@ class VerifyIdentityCoordinator extends StateMachineCoordinator {
   ) : super(stateMachine, routeObserver);
 
   @override
-  void executeTask(Intention? intention, state) {
+  FutureOr<void> executeTask({
+    required BuildContext context,
+    required MachineState state,
+    Intention? intention,
+  }) {
     // TODO: implement executeTask
   }
 
   @override
-  void navigate(BuildContext context, Intention? intention, state) {}
+  void navigateToScreen(BuildContext context, Intention? intention, state) {}
 
   @override
   void startCoordinator({
