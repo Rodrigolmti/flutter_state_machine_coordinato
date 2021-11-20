@@ -21,6 +21,8 @@ All of these screen can call a different API at the end.
 
 # How it works
 
+The IDEA of the repository was a POC (Prove of concept) that i develop for a problem that we had on EBANX.
+
 WIP
 
 ## Credits

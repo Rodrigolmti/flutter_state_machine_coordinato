@@ -7,6 +7,11 @@ import 'package:coordinator/core/state_machine.dart';
 import 'package:coordinator/router/route_observer.dart';
 import 'package:flutter/material.dart';
 
+/// With this class we can control the state machine, and syncronize the navigation stack
+/// with the stateHistory.
+///
+/// Every time that someone pops a screen on the navigation we need to pop the history too,
+/// until we find the last [ViewState] that is the corresponding state with the current screen
 abstract class StateMachineCoordinator extends Coordinator
     implements CoordinatorExecutor, CoordinatorLifecycle {
   final ListQueue<MachineState> stateHistory = ListQueue<MachineState>();
@@ -22,7 +27,10 @@ abstract class StateMachineCoordinator extends Coordinator
 
   final StateMachine stateMachine;
 
-  StateMachineCoordinator(this.stateMachine, this.routeObserver);
+  StateMachineCoordinator(
+    this.stateMachine,
+    this.routeObserver,
+  );
 
   @override
   void start({

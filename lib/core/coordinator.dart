@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 abstract class Coordinator {
   VoidCallback? coordinationDidFinish;
 
-  /// The start of the coordinator lifecycle
   void start({
     required BuildContext context,
     VoidCallback? coordinationDidFinish,
@@ -47,9 +46,14 @@ abstract class CoordinatorExecutor {
 }
 
 abstract class CoordinatorLifecycle {
+  /// The start of the coordinator lifecycle
   void onStart();
 
+  /// When we start a new coordinator from it, it enters on a stopped mode, so it can't
+  /// receive updates from the router observer for example.
   void onStop();
 
+  /// When the coordinator that we start finishes and we bring back the last coordinator
+  /// tor life.
   void onResume();
 }
