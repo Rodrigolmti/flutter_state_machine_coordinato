@@ -1,16 +1,28 @@
-# coordinator
+# Flutter state machine with coordinators
 
-A new Flutter project.
+This repository aims to solve a problem where:
 
-## Getting Started
+You have a flow of screen, and you need to call those screens with a different logic
+depending on something, API response for example.
 
-This project is a starting point for a Flutter application.
+Example:
 
-A few resources to get you started if this is your first Flutter project:
+SignUp flow, screens
+- email
+- name
+- address
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+We can have three scenarios:
+1. signUp
+2. re-subimit (in case that the API let the user send back some wrong information)
+3. update data (like, banks after some time you need to update your data, and you use the same flow)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+All of these screen can call a different API at the end.
+
+# How it works
+
+WIP
+
+## Credits
+
+This implementation is based on @cmorigaki state machine algorithm.
